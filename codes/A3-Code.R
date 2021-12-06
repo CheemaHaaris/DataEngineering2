@@ -12,6 +12,7 @@ library(tuneR)
 library(tm)
 library(wordcloud)
 library(reshape)
+library(RColorBrewer)
 
 ################# Scraping #####################
 
@@ -110,11 +111,6 @@ argentina <- rbind(text2, text5)
 poland <- rbind(text3, text4)
 
 
-
-
-
-
-
 ##################### Wordcloud ##############################
 
 
@@ -138,9 +134,9 @@ df_frequency6 <- data.frame(word = names(word_frequency6),
 head(df_frequency6)
 
 
-wordcloud(df_frequency6$word,
-          df_frequency6$freq)
-
+wordcloud(words = df_frequency6$word, freq =  df_frequency6$freq, min.freq = 1,
+          max.words=50, random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
 
 #### Poland
 
@@ -162,9 +158,10 @@ df_frequency7 <- data.frame(word = names(word_frequency7),
 head(df_frequency7)
 
 
-wordcloud(df_frequency7$word,
-          df_frequency7$freq)
 
+wordcloud(words = df_frequency7$word, freq =  df_frequency7$freq, min.freq = 1,
+          max.words=50, random.order=FALSE, rot.per=0.35,
+          colors=brewer.pal(8, "Dark2"))
 
 ######################### Amazon Comprehend ##################################
 
