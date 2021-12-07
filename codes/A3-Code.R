@@ -40,9 +40,6 @@ for ( i in arg_text2 ){
   text5 <- paste( text5, i )
 }
 
-
-
-
 ## Polish newspapers
 
 url3 <- 'https://sport.fakt.pl/zlota-pilka-argentynski-portal-krytykuje-france-football-przepraszam-robert/fdks8h7'
@@ -79,11 +76,10 @@ if (identical(keyfile, character(0))){
   stop("ERROR: AWS key file not found")
 } 
 
-keyTable <- read.csv(keyfile, header = T) # *accessKeys.csv == the CSV downloaded from AWS containing your Access & Secret keys
+keyTable <- read.csv(keyfile, header = T) 
 AWS_ACCESS_KEY_ID <- as.character(keyTable$Access.key.ID)
 AWS_SECRET_ACCESS_KEY <- as.character(keyTable$Secret.access.key)
 
-#activate
 Sys.setenv("AWS_ACCESS_KEY_ID" = AWS_ACCESS_KEY_ID,
            "AWS_SECRET_ACCESS_KEY" = AWS_SECRET_ACCESS_KEY,
            "AWS_DEFAULT_REGION" = "eu-west-1") 
@@ -115,7 +111,6 @@ detect_sentiment(text5)
 
 ##################### Wordclouds & Frequency Plots ##############################
 
-
 #### Argentina
 
 trial6 <- VCorpus(VectorSource(argentina))
@@ -135,19 +130,18 @@ df_frequency6 <- data.frame(word = names(word_frequency6),
 
 head(df_frequency6)
 
-
 terms2 <- df_frequency6 %>% head(sort(freq,decreasing=TRUE), n = 10)
 
-
-
-ggplot(terms2, aes( x = reorder(word, freq ) , y = freq, fill = freq)) +
-  geom_bar(stat = "identity") +
+ggplot(terms2, aes( x = reorder(word, freq ) , y = freq)) +
+  geom_bar(stat = "identity", aes( fill = freq)) +
   coord_flip() +
   labs(title = "Term frequency in the Argentine articles", x = "Words", y = "Frequency") +
-  theme_bw()
+  theme_bw()+
+  scale_fill_gradient(low = "yellow", high = "red", na.value = NA)
+
 
 wordcloud(words = df_frequency6$word, freq =  df_frequency6$freq, min.freq = 1,
-          max.words=50, random.order=FALSE, rot.per=0.35,
+          max.words=42, random.order=FALSE, rot.per=0.25,
           colors=brewer.pal(8, "Dark2"))
 
 #### Poland
@@ -178,7 +172,7 @@ ggplot(terms1, aes( x = reorder(word, freq ) , y = freq, fill = freq)) +
   theme_bw()
 
 wordcloud(words = df_frequency7$word, freq =  df_frequency7$freq, min.freq = 1,
-          max.words=50, random.order=FALSE, rot.per=0.35,
+          max.words=50, random.order=FALSE, rot.per=0.25,
           colors=brewer.pal(8, "Dark2"))
 
 ######################### Amazon Comprehend ##################################
@@ -193,6 +187,13 @@ for (i in 1:2) {
 
 ent_poland
 
+
+person <- subset(ent_poland, ent_poland$Type == 'PERSON')
+  
+ggplot(person, aes(x = Text, y = Score)) +
+  geom_point(colour = "red", size = 3) +
+  theme_bw() +
+  labs( y = 'Confidence')
 
 ent_argentina <- data.frame()
 
@@ -266,5 +267,3 @@ if (long[5,5] > long[6,5]) {
 vec1 <- synthesize("There is greater neutrality in the Argentine articles. There is also more negativity
                    expressed in the polish articles", voice = "Joey")
 play(vec1) }
-
-
