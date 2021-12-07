@@ -268,7 +268,3 @@ vec1 <- synthesize("There is greater neutrality in the Argentine articles. There
 play(vec1) }
 
 
-
-
-######################## ISSUE WITH SENTIMENT ANALYSIS ######################################
-
