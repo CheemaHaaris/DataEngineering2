@@ -110,8 +110,10 @@ argentina <- rbind(text2, text5)
 
 poland <- rbind(text3, text4)
 
+detect_sentiment(text2)
+detect_sentiment(text5)
 
-##################### Wordcloud ##############################
+##################### Wordclouds & Frequency Plots ##############################
 
 
 #### Argentina
@@ -134,6 +136,16 @@ df_frequency6 <- data.frame(word = names(word_frequency6),
 head(df_frequency6)
 
 
+terms2 <- df_frequency6 %>% head(sort(freq,decreasing=TRUE), n = 10)
+
+
+
+ggplot(terms2, aes( x = reorder(word, freq ) , y = freq, fill = freq)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Term frequency in the Argentine articles", x = "Words", y = "Frequency") +
+  theme_bw()
+
 wordcloud(words = df_frequency6$word, freq =  df_frequency6$freq, min.freq = 1,
           max.words=50, random.order=FALSE, rot.per=0.35,
           colors=brewer.pal(8, "Dark2"))
@@ -155,9 +167,15 @@ word_frequency7 <- sort(colSums(as.matrix(tdm7)),
 df_frequency7 <- data.frame(word = names(word_frequency7),
                             freq=word_frequency7)
 
-head(df_frequency7)
+terms1 <- df_frequency7 %>% head(sort(freq,decreasing=TRUE), n = 10)
 
 
+
+ggplot(terms1, aes( x = reorder(word, freq ) , y = freq, fill = freq)) +
+  geom_bar(stat = "identity") +
+  coord_flip() +
+  labs(title = "Term frequency in the Polish articles", x = "Words", y = "Frequency") +
+  theme_bw()
 
 wordcloud(words = df_frequency7$word, freq =  df_frequency7$freq, min.freq = 1,
           max.words=50, random.order=FALSE, rot.per=0.35,
@@ -190,10 +208,18 @@ ent_argentina
 sent_arg <- data.frame()
 
 for (i in 1:2) {
-  sent_arg <- detect_sentiment(argentina[i]) 
+  sent_arg[i,1:6] <- detect_sentiment(argentina[i]) 
 }
 
-sent_arg %>% 
+sent_arg[1:2, 3:6] <- round(sent_arg[1:2, 3:6] * 100, 2)
+
+df2 <- data.frame(Index = 0, Sentiment = 'Neutral', Mixed = round(mean(sent_arg$Mixed),2),
+                  Negative = round(mean(sent_arg$Negative),2),
+                  Neutral = round(mean(sent_arg$Neutral),2),
+                  Positive = round(mean(sent_arg$Positive),2) )
+
+
+df2 [1,2:6] %>% 
   kbl(caption = "Sentiment Distribution in the Argentine Articles") %>%
   kable_classic_2(full_width = F, html_font = "Cambria")
 
@@ -201,10 +227,20 @@ sent_arg %>%
 sent_poland <- data.frame()
 
 for (i in 1:2) {
-  sent_poland <- detect_sentiment(poland[i]) 
+  sent_poland[i,1:6] <- detect_sentiment(poland[i]) 
 }
 
-sent_poland %>%
+
+sent_poland[1:2, 3:6] <- round(sent_poland[1:2, 3:6] * 100, 2)
+
+
+df1 <- data.frame(Index = 0, Sentiment = 'Neutral', Mixed = round(mean(sent_poland$Mixed),2),
+                                                  Negative = round(mean(sent_poland$Negative),2),
+                                                  Neutral = round(mean(sent_poland$Neutral),2),
+                                                  Positive = round(mean(sent_poland$Positive),2) )
+
+
+df1[1,2:6] %>%
   kbl(caption = "Sentiment Distribution in the Polish Articles") %>%
   kable_classic_2(full_width = F, html_font = "Cambria")
 
@@ -212,12 +248,12 @@ sent_poland %>%
 
 # - Sentiment plot
 
-new <- rbind(sent_arg, sent_poland)
+new <- rbind(df2, df1)
 new$country <- "Argentina"
 new$country[2] <- "Poland"
 long <- melt(new, id.vars = c("country", "Sentiment", "Index"))
 
-ggplot(long, aes( x = country, y = value * 100, fill = variable)) +
+ggplot(long, aes( x = country, y = value, fill = variable)) +
   geom_bar(stat = "identity") +
   theme_bw() + 
   labs( title = "Comparing Sentiment Distribution", x= "Country", y = "Percentage")
@@ -234,5 +270,5 @@ play(vec1) }
 
 
 
-
+######################## ISSUE WITH SENTIMENT ANALYSIS ######################################
 
